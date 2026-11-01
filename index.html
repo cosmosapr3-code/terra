@@ -293,8 +293,8 @@ function nextAlive(from,step){const n=G.ps.length;for(let k=1;k<=n;k++){const j=
 function snap(){return JSON.stringify({turn:G.turn,ps:G.ps.map(p=>({hp:p.hp,sh:p.sh,atk:p.atk,umb:p.umb,x:p.x,y:p.y,f:p.f,hand:p.hand,alive:p.alive,turns:p.turns||0,ap:p.ap||0,apMax:p.apMax||S().ap,boost:p.boost||0,draws:p.draws||0}))})}
 function restore(i,s){const d=JSON.parse(s);const q=d.ps[i],p=G.ps[i];Object.assign(p,q);return d}
 function startTurn(r=true){const cp=G.ps[G.turn];G.hist.push(snap());if(G.hist.length>6)G.hist.shift();
- // 各プレイヤーの残りコストを個別に保持し、その人自身の次のターン開始時だけ増加させる。未使用分は持ち越す。
- const firstPersonalTurn=(cp.turns||0)===0;cp.turns=(cp.turns||0)+1;cp.apMax=S().ap;let ap=Math.max(0,Number(cp.ap)||0);if(!firstPersonalTurn)ap=Math.min(S().ap,ap+S().apInc);if(cp.f[cp.y*5+cp.x].c==='y')ap++;
+ // 開始コストは各プレイヤー自身のターン回数から計算し、未使用分は持ち越さない。
+ cp.turns=Math.max(0,Number(cp.turns)||0)+1;cp.apMax=S().ap;let ap=Math.min(S().ap,Math.max(0,(cp.turns-1)*(Number(S().apInc)||0)));if(cp.f[cp.y*5+cp.x].c==='y')ap++;
  if(G.snow.lvl>0){if(!umbBlock(cp))ap=Math.max(0,ap-G.snow.lvl);if(ap<=0&&!cp.hand.includes('umbrella')){hurt(cp,1,'島雪');ap=0}}
  if(cp.boost>0){cp.boost--;ap=810;cp.apMax=810;hurt(cp,1,'コスト増強810',1)}
  cp.ap=ap;G.ap=cp.ap;G.apMax=cp.apMax;cp.draws=0;G.card=null;G.cpuT=performance.now()+900;G.log=`${G.ps[G.turn].name} のターン`;if(cp.sleep>0){cp.sleep--;G.log=cp.name+'は眠っている…';checkEnd();if(!G.over)endTurn();return}if(r)paintBattle()}
