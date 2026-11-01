@@ -68,6 +68,128 @@ button{background:linear-gradient(#2f7fd0,#1c5aa6);border:1px solid #8cc8ff}
 .card-list-desc{font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}
 .card.imgc{padding:5px!important;min-height:0!important;border-width:2px!important;border-style:solid!important;background:linear-gradient(#173556,#0c1f38)!important;width:145px!important}
 .card.imgc img{width:100%;max-height:110px;object-fit:contain;display:block;border-radius:5px}
+
+/* コスト丸がカード枠の外にはみ出して切れないようにする */
+.card .c{
+  position:absolute !important;
+  left:auto !important;
+  right:6px !important;
+  top:6px !important;
+  z-index:20 !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  line-height:28px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  float:none !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:50% !important;
+  font-size:17px !important;
+  white-space:nowrap !important;
+}
+
+/* カード操作中のタッチ判定を安定させる */
+.card{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.card *{ -webkit-user-select:none; user-select:none }
+/* 自分のターン開始を知らせる一時表示 */
+.tc-turn-notice{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);z-index:10000;pointer-events:none;padding:16px 30px;border:3px solid #fff;border-radius:18px;background:linear-gradient(135deg,#063b72,#137bd0);box-shadow:0 8px 30px #0009;color:#fff;font-size:clamp(24px,6vw,42px);font-weight:900;letter-spacing:.06em;text-align:center;white-space:nowrap;animation:tcTurnNoticeIn .22s ease-out,tcTurnNoticeOut .32s ease-in 1.05s forwards}
+@keyframes tcTurnNoticeIn{from{opacity:0;transform:translate(-50%,-42%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes tcTurnNoticeOut{to{opacity:0;transform:translate(-50%,-58%) scale(1.04)}}
+
+
+/* 全カードの完全表示（願い星カードは従来の表示を維持） */
+#bboard .battle-hand-panel,
+#bboard .battle-hand-panel .hand {
+  overflow: visible !important;
+}
+#bboard .battle-hand-panel .hand {
+  align-items: stretch !important;
+  gap: 10px !important;
+  padding: 10px 8px 12px !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card) {
+  box-sizing: border-box !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+  min-height: 224px !important;
+  height: auto !important;
+  flex: 0 0 158px !important;
+  padding: 8px !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  white-space: normal !important;
+}
+#bboard .battle-hand-panel .hand .card.imgc:not(.wish-card) {
+  min-height: 224px !important;
+  background: linear-gradient(#173556,#0c1f38) !important;
+  border: 2px solid #8cc8ff !important;
+}
+#bboard .battle-hand-panel .hand .card.imgc:not(.wish-card) img {
+  display: block !important;
+  width: 100% !important;
+  height: 100px !important;
+  min-height: 100px !important;
+  max-height: 100px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  flex: 0 0 100px !important;
+  margin: 8px 0 2px !important;
+  border-radius: 5px !important;
+  background: #081827 !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card) .i {
+  min-height: 88px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 88px !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card) b {
+  display: block !important;
+  flex: 0 0 auto !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card) .card-desc {
+  display: block !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  margin: 3px 0 0 !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card) .c {
+  right: 6px !important;
+  top: 6px !important;
+  z-index: 25 !important;
+}
+#bboard .battle-hand-panel .hand .card:not(.wish-card).draw-limited {
+  overflow: visible !important;
+}
+@media (max-width: 520px) {
+  #bboard .battle-hand-panel .hand .card:not(.wish-card) {
+    width: 146px !important;
+    min-width: 146px !important;
+    max-width: 146px !important;
+    flex-basis: 146px !important;
+  }
+}
 </style></head><body><div id="app"></div>
 <script>
 "use strict";
@@ -356,7 +478,7 @@ function startTurn(r=true){const cp=G.ps[G.turn];G.hist.push(snap());if(G.hist.l
  cp.turns=Math.max(0,Number(cp.turns)||0)+1;cp.apMax=S().ap;let ap=Math.min(S().ap,Math.max(0,(cp.turns-1)*(Number(S().apInc)||0)));if(cp.f[cp.y*5+cp.x].c==='y')ap++;
  if(G.snow.lvl>0){if(!umbBlock(cp))ap=Math.max(0,ap-G.snow.lvl);if(ap<=0&&!cp.hand.includes('umbrella')){hurt(cp,1,'島雪');ap=0}}
  if(cp.boost>0){cp.boost--;ap=810;cp.apMax=810;hurt(cp,1,'コスト増強810',1)}
- cp.ap=ap;G.ap=cp.ap;G.apMax=cp.apMax;cp.draws=0;G.card=null;G.cpuT=performance.now()+900;G.log=`${G.ps[G.turn].name} のターン`;if(cp.cheatActive){const risk=Math.max(1,Math.min(1000,Number(cp.cheatRisk)||100));if(rnd(1000)<risk){cp.hp=0;cp.alive=false;G.log=cp.name+'はチートの反動で退場した…';checkEnd();if(!G.over)endTurn();return}cp.cheatRisk=Math.min(1000,risk+100)}if(cp.sleep>0){cp.sleep--;G.log=cp.name+'は眠っている… 移動もできない';checkEnd();if(!G.over)endTurn();return}if(r)paintBattle()}
+ cp.ap=ap;G.ap=cp.ap;G.apMax=cp.apMax;cp.draws=0;G.card=null;G.cpuT=performance.now()+900;G.log=`${G.ps[G.turn].name} のターン`;if(G.turn===SEAT)showOwnTurnNotice();if(cp.cheatActive){const risk=Math.max(1,Math.min(1000,Number(cp.cheatRisk)||100));if(rnd(1000)<risk){cp.hp=0;cp.alive=false;G.log=cp.name+'はチートの反動で退場した…';checkEnd();if(!G.over)endTurn();return}cp.cheatRisk=Math.min(1000,risk+100)}if(cp.sleep>0){cp.sleep--;G.log=cp.name+'は眠っている… 移動もできない';checkEnd();if(!G.over)endTurn();return}if(r)paintBattle()}
 function gmBlock(t){if(t.hand.includes('gasmask')){t.gm=(t.gm==null?3:t.gm)-1;if(t.gm<=0){t.hand.splice(t.hand.indexOf('gasmask'),1);t.gm=3}G.log=t.name+'のガスマスクが匂いを無効化';return true}return false}
 function endTurn(){if(G.over)return;if(G.smell>0){G.smell--;G.ps.forEach(q=>{if(q.alive&&!gmBlock(q))hurt(q,1,'体臭',1)});checkEnd();if(G.over)return}if(G.snow.left>0){G.snow.left--;G.snow.lvl++}else G.snow.lvl=0;G.turn=nextAlive(G.turn,1);G.ps.forEach((p,i)=>{});startTurn();if(G.turn===0&&G.target===0)G.target=nextAlive(0,1)}
 function enemyOf(i){return G.target!==i&&G.ps[G.target]&&G.ps[G.target].alive?G.target:nextAlive(i,1)}
@@ -464,19 +586,71 @@ function cpuAct(i){const p=G.ps[i];const has=k=>p.hand.includes(k);
  {const o=p.hand.filter(k=>!CARDS[k].passive&&!CARDS[k].tile&&!['fire','heal','guard','draw','end','rewind'].includes(k)&&CARDS[k].c<=(Number(p.ap)||0));if(o.length&&Math.random()<.9){const k=o[rnd(o.length)];if(playCard(i,k)){return paintBattle()}else{p.hand.splice(p.hand.indexOf(k),1)}}}
  if(p.draws<3&&(Number(p.ap)||0)>=1&&p.hand.length<S().maxHand){playCard(i,'draw');return paintBattle()}
  endTurn()}
-function paintBattle(){const el=$('#bboard');if(!el||!G)return;if(ONL&&HOST)pushSoon();
- const you=G.ps[SEAT];finish();
- const handKey=JSON.stringify([you.hand,G.card,you.draws,you.ap]);const oldHand=el.querySelector('.hand');const keepHand=oldHand&&el.dataset.handKey===handKey?oldHand:null;
- el.innerHTML=`<div class="panel row"><b>ターン: ${esc(G.ps[G.turn].name)}</b><span>⚡自分のコスト ${Number(you.ap)||0}/${you.apMax||S().ap}${G.snow.lvl?' ❄️':''}</span><span>${esc(G.log)}</span><span style="flex:1"></span><small>移動: 矢印/WASD(0.25秒に1マス・いつでも可)。攻撃対象は相手の枠をクリック</small></div>
- <div class="boards">${G.ps.map((p,i)=>`<div class="pf ${G.turn===i?'turn':''} ${G.target===i&&i!==SEAT?'sel':''} ${p.alive?'':'dead'}"><div class="row" ${i!==SEAT?`onclick="G.target=${i};paintBattle()"`:''}>${avatar(p.u)}<b>${esc(p.name)}</b> <span class="hp">♥ ${p.hp}/${p.mhp}</span> 🛡${p.sh} <small>(${POS[i]})</small></div><div class="grid">${p.f.map((t,ti)=>`<button class="t ${t.c} d${t.d}" onclick="tileClick(${i},${ti})">${p.x+p.y*5===ti&&p.alive?`<span>${i!==SEAT?'🙂':'😀'}</span>`:''}<small>${t.d}</small></button>`).join('')}${(G.inc||[]).filter(m=>m.t===i).map(m=>{const x=(m.ti%5)*20+10,y=Math.floor(m.ti/5)*20+10;return `<div class="projectile-layer"><span class="projectile ${m.kind==='barrage'?'barrage':''}" style="--tx:${x}%;--ty:${y}%">${m.kind==='barrage'?'🔥':'🚀'}</span></div>`}).join('')}</div></div>`).join('')}</div>
- <div class="panel"><div class="hand">${you.hand.map((k,hi)=>cardHtml(k,hi)).join('')}${cardHtml('draw')}${cardHtml('end')}</div>${G.over&&G.res?`<div class="resov"><div class="resbox ${G.res.win?'win':'lose'}"><h1>${G.res.win?'🎉 勝利!':'💀 敗北…'}</h1><p class="xpl">獲得XP <b>+${G.res.xp}</b>${G.res.up?` ・ レベルアップ! Lv.${G.res.lv}`:''}</p>${G.res.win?`<p>連勝 ${G.res.st}</p>`:''}<button onclick="leaveNet();go('home')">ホームへ</button>${ONL?'':(STORY&&G.res.win&&STORY<20?` <button onclick="startStory(${STORY+1})">次の節へ</button>`:` <button onclick="STORY?startStory(${STORY}):startBattle(${G.ps.length-1})">もう一度</button>`)}</div></div>`:''}</div>`;
- if(keepHand){const fresh=el.querySelector('.hand');if(fresh)fresh.replaceWith(keepHand)}el.dataset.handKey=handKey}
-function cardHtml(k,hi){const p=G.ps[SEAT],shown=(k==='cheat_limit'&&cheatLimitReady(p))?'cheat':k,c=CARDS[shown]||CARDS[k],cost=k==='draw'?(p.draws>0?S().drawCost:0):c.c,limited=k==='draw'&&p.draws>=3;return `<div class="card ${c.img?'imgc ':''}${G.card===k&&!c.fixed?'sel':''}${limited?' draw-limited':''}" style="border-color:${c.col}" title="${esc(c.n)}" onclick="cardClick('${k}')"><span class="c">${cost}</span>${c.img?`<img src="${c.img}" alt="${esc(c.n)}">`:`<div class="i">${esc(c.i)}</div>`}<b>${esc(k==='draw'?`ドロー (${p.draws}/3)`:c.n)}</b>${c.d?`<small class="card-desc">${esc(c.d)}</small>`:''}${limited?'<small>このターンのドロー上限です</small>':''}</div>`}
-function cardFace(k){const c=CARDS[k];return c.img?`<img src="${c.img}" alt="${esc(c.n)}" style="width:100%;border-radius:6px">`:`<div class="card" style="border-color:${c.col};width:auto"><span class="c">${c.c}</span><div class="i">${c.i}</div><b>${esc(c.n)}</b></div>`}
+function paintBattle(){
+ const el=$('#bboard');
+ if(!el||!G)return;
+ if(ONL&&HOST)pushSoon();
+ const you=G.ps[SEAT];
+ finish();
+ // 盤面と手札を別々に更新し、CPU移動中も手札DOMを取り外さない。
+ if(!el.querySelector('.battle-status')||!el.querySelector('.battle-hand-panel')){
+  el.innerHTML='<div class="battle-status"></div><div class="boards"></div><div class="panel battle-hand-panel"><div class="hand"></div><div class="battle-result"></div></div>';
+  delete el.dataset.handKey;
+ }
+ const status=el.querySelector('.battle-status');
+ const boards=el.querySelector('.boards');
+ const hand=el.querySelector('.hand');
+ const result=el.querySelector('.battle-result');
+ status.innerHTML=`<div class="panel row"><b>ターン: ${esc(G.ps[G.turn].name)}</b><span>⚡自分のコスト ${Number(you.ap)||0}/${you.apMax||S().ap}${G.snow.lvl?' ❄️':''}</span><span>${esc(G.log)}</span><span style="flex:1"></span><small>移動: 矢印/WASD(0.25秒に1マス・いつでも可)。攻撃対象は相手の枠をクリック</small></div>`;
+ boards.innerHTML=`${G.ps.map((p,i)=>`<div class="pf ${G.turn===i?'turn':''} ${G.target===i&&i!==SEAT?'sel':''} ${p.alive?'':'dead'}"><div class="row" ${i!==SEAT?`onclick="G.target=${i};paintBattle()"`:''}>${avatar(p.u)}<b>${esc(p.name)}</b> <span class="hp">♥ ${p.hp}/${p.mhp}</span> 🛡${p.sh} <small>(${POS[i]})</small></div><div class="grid">${p.f.map((t,ti)=>`<button class="t ${t.c} d${t.d}" onclick="tileClick(${i},${ti})">${p.x+p.y*5===ti&&p.alive?`<span>${i!==SEAT?'🙂':'😀'}</span>`:''}<small>${t.d}</small></button>`).join('')}${(G.inc||[]).filter(m=>m.t===i).map(m=>{const x=(m.ti%5)*20+10,y=Math.floor(m.ti/5)*20+10;return `<div class="projectile-layer"><span class="projectile ${m.kind==='barrage'?'barrage':''}" style="--tx:${x}%;--ty:${y}%">${m.kind==='barrage'?'🔥':'🚀'}</span></div>`}).join('')}</div></div>`).join('')}`;
+ const handKey=JSON.stringify([you.hand,G.card,you.draws,you.ap,G.ps[SEAT].cheatActive]);
+ if(el.dataset.handKey!==handKey){
+  if(window.__tcHandPointerActive){window.__tcHandRefreshPending=true;}
+  else {hand.innerHTML=`${you.hand.map((k,hi)=>cardHtml(k,hi)).join('')}${cardHtml('draw')}${cardHtml('end')}`;el.dataset.handKey=handKey;}
+ }
+ result.innerHTML=G.over&&G.res?`<div class="resov"><div class="resbox ${G.res.win?'win':'lose'}"><h1>${G.res.win?'🎉 勝利!':'💀 敗北…'}</h1><p class="xpl">獲得XP <b>+${G.res.xp}</b>${G.res.up?` ・ レベルアップ! Lv.${G.res.lv}`:''}</p>${G.res.win?`<p>連勝 ${G.res.st}</p>`:''}<button onclick="leaveNet();go('home')">ホームへ</button>${ONL?'':(STORY&&G.res.win&&STORY<20?` <button onclick="startStory(${STORY+1})">次の節へ</button>`:` <button onclick="STORY?startStory(${STORY}):startBattle(${G.ps.length-1})">もう一度</button>`)}</div></div>`:'';
+ const notice=G.turnNoticeUntil&&Date.now()<G.turnNoticeUntil&&G.turn===SEAT;
+ let noticeEl=el.querySelector('.tc-turn-notice');
+ if(notice&&!noticeEl){noticeEl=document.createElement('div');noticeEl.className='tc-turn-notice';noticeEl.textContent='あなたのターン！';noticeEl.setAttribute('role','status');noticeEl.setAttribute('aria-live','polite');el.appendChild(noticeEl);}
+ else if(!notice&&noticeEl)noticeEl.remove();
+}function cardHtml(k,hi){const p=G.ps[SEAT],shown=(k==='cheat_limit'&&cheatLimitReady(p))?'cheat':k,c=CARDS[shown]||CARDS[k],isCheat=(k==='cheat'||(k==='cheat_limit'&&cheatLimitReady(p))),costLabel=isCheat?'∞':(k==='draw'?(p.draws>0?S().drawCost:0):c.c),limited=k==='draw'&&p.draws>=3;return `<div class="card ${k==='wish'?'wish-card ':''}${c.img?'imgc ':''}${G.card===k&&!c.fixed?'sel':''}${limited?' draw-limited':''}" style="border-color:${c.col}" title="${esc(c.n)}" onclick="cardClick('${k}')"><span class="c">${costLabel}</span>${c.img?`<img src="${c.img}" alt="${esc(c.n)}">`:`<div class="i">${esc(c.i)}</div>`}<b>${esc(k==='draw'?`ドロー (${p.draws}/3)`:c.n)}</b>${c.d?`<small class="card-desc">${esc(c.d)}</small>`:''}${limited?'<small>このターンのドロー上限です</small>':''}</div>`}
+function cardFace(k){const c=CARDS[k],costLabel=(k==='cheat'||k==='cheat_limit')?'∞':c.c;return c.img?`<img src="${c.img}" alt="${esc(c.n)}" style="width:100%;border-radius:6px">`:`<div class="card" style="border-color:${c.col};width:auto"><span class="c">${costLabel}</span><div class="i">${c.i}</div><b>${esc(c.n)}</b></div>`}
 function cardListHtml(){return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">${Object.keys(CARDS).filter(k=>!CARDS[k].fixed).map(k=>{const c=CARDS[k];return `<div class="panel">${cardFace(k)}<p><b>${esc(c.n)}</b> コスト${c.c}</p>${c.d?`<p class="card-list-desc">${esc(c.d)}</p>`:''}</div>`}).join('')}</div>`}
-function cardClick(k){if(!G||G.over)return;if(G.turn!==SEAT){G.log='カードは自分のターンに使えません';paintBattle();return}if(k==='draw'&&G.ps[SEAT].draws>=3){G.log='1ターンに引けるカードは3枚までです';paintBattle();return}const c=CARDS[k];if(!c)return;if(c.tile){if(c.c>(Number(G.ps[SEAT].ap)||0)){G.log='コストが足りません';paintBattle();return}G.card=G.card===k?null:k;G.log=G.card?'対象の地面をクリック':'';return paintBattle()}const ok=perform({k});if(ok===false){G.log='カードを使用できません(コスト・効果・ターンを確認)'}paintBattle()}
-function tileClick(pi,ti){if(!G||G.over)return;if(G.card&&G.turn===SEAT){const k=G.card;const ok=perform({k,tile:{pi,ti}});if(ok===false){G.log='カードを使用できません(対象またはコストを確認)';paintBattle();return}G.card=null;G.log=CARDS[k].n;paintBattle();return}
- if(pi===SEAT){const p=G.ps[SEAT];const dx=(ti%5)-p.x,dy=Math.floor(ti/5)-p.y;if(Math.abs(dx)+Math.abs(dy)===1)perform({mv:[dx,dy]})}else{G.target=pi;paintBattle()}}
+let TC_CARD_ACTION_BUSY=false,TC_CARD_ACTION_TIMER=0,TC_TURN_NOTICE_TIMER=0;
+function releaseCardAction(){TC_CARD_ACTION_BUSY=false;if(TC_CARD_ACTION_TIMER){clearTimeout(TC_CARD_ACTION_TIMER);TC_CARD_ACTION_TIMER=0;}}
+function armCardAction(remote){if(TC_CARD_ACTION_TIMER)clearTimeout(TC_CARD_ACTION_TIMER);TC_CARD_ACTION_TIMER=setTimeout(releaseCardAction,remote?2400:380);}
+function showOwnTurnNotice(){if(!G||G.turn!==SEAT)return;G.turnNoticeUntil=Date.now()+1450;if(TC_TURN_NOTICE_TIMER)clearTimeout(TC_TURN_NOTICE_TIMER);TC_TURN_NOTICE_TIMER=setTimeout(()=>{if(G){G.turnNoticeUntil=0;if(screen==='battle')paintBattle();}},1500);}
+function cardClick(k){
+ if(!G||G.over||TC_CARD_ACTION_BUSY)return;
+ if(G.turn!==SEAT){G.log='カードは自分のターンに使えません';paintBattle();return;}
+ if(k==='draw'&&G.ps[SEAT].draws>=3){G.log='1ターンに引けるカードは3枚までです';paintBattle();return;}
+ const p=G.ps[SEAT],shown=(k==='cheat_limit'&&cheatLimitReady(p))?'cheat':k,c=CARDS[shown]||CARDS[k];
+ if(!c)return;
+ if(c.tile){if(c.c>(Number(p.ap)||0)&&!p.cheatActive){G.log='コストが足りません';paintBattle();return;}G.card=G.card===k?null:k;G.log=G.card?'対象の地面をクリック':'';return paintBattle();}
+ TC_CARD_ACTION_BUSY=true;
+ const ok=perform({k});
+ if(ok===false){releaseCardAction();G.log='カードを使用できません(コスト・効果・ターンを確認)';paintBattle();return;}
+ armCardAction(ONL&&!HOST);
+ paintBattle();
+}
+function tileClick(pi,ti){
+ if(!G||G.over)return;
+ if(G.card&&G.turn===SEAT){
+  if(TC_CARD_ACTION_BUSY)return;
+  const k=G.card;TC_CARD_ACTION_BUSY=true;
+  const ok=perform({k,tile:{pi,ti}});
+  if(ok===false){releaseCardAction();G.log='カードを使用できません(対象またはコストを確認)';paintBattle();return;}
+  G.card=null;G.log=CARDS[k].n;armCardAction(ONL&&!HOST);paintBattle();return;
+ }
+ if(pi===SEAT){const p=G.ps[SEAT];const dx=(ti%5)-p.x,dy=Math.floor(ti/5)-p.y;if(Math.abs(dx)+Math.abs(dy)===1)perform({mv:[dx,dy]});}
+ else {G.target=pi;paintBattle();}
+}
+// CPU移動中の再描画で押下中のカードDOMが入れ替わらないようにする。
+window.__tcHandPointerActive=false;window.__tcHandRefreshPending=false;
+document.addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('#bboard .hand .card'))window.__tcHandPointerActive=true;},true);
+function tcFinishHandPointer(){if(!window.__tcHandPointerActive)return;setTimeout(()=>{window.__tcHandPointerActive=false;if(window.__tcHandRefreshPending){window.__tcHandRefreshPending=false;if(screen==='battle')paintBattle();}},70);}
+document.addEventListener('pointerup',tcFinishHandPointer,true);
+document.addEventListener('pointercancel',tcFinishHandPointer,true);
 addEventListener('keydown',e=>{const k=e.key.length>1?e.key:e.key.toLowerCase();if(screen==='battle'&&document.activeElement.tagName!=='INPUT'){G.keys[k]=1;if(k.startsWith('Arrow'))e.preventDefault()}});
 addEventListener('keyup',e=>{if(G)G.keys={...G.keys,[e.key.length>1?e.key:e.key.toLowerCase()]:0}});
 addEventListener('blur',()=>{if(G)G.keys={}});
@@ -485,15 +659,16 @@ addEventListener('blur',()=>{if(G)G.keys={}});
 let ONL=false,HOST=false,SEAT=0,room=null,roster=null,pushT=0,lastMv=0;
 function pack(){return{turn:G.turn,turnSeq:G.turnSeq||0,ap:G.ap,apMax:G.apMax,log:G.log,over:G.over,snow:G.snow,inc:G.inc||[],cc:CFG.cards,cs:Object.fromEntries(Object.keys(CARDS).map(k=>[k,CARDS[k].c])),ps:G.ps.map(p=>({name:p.name,hp:p.hp,mhp:p.mhp,sh:p.sh,atk:p.atk,x:p.x,y:p.y,f:p.f,hand:p.hand,alive:p.alive,draws:p.draws,turns:p.turns||0,ap:p.ap||0,apMax:p.apMax||S().ap,boost:p.boost||0,char:p.u.char,sleep:p.sleep||0,sansUntil:p.sansUntil||0,horseUntil:p.horseUntil||0,youtubeAtkBonus:p.youtubeAtkBonus||0,cheatActive:!!p.cheatActive,cheatRisk:p.cheatRisk||0}))}}
 function pushSoon(){if(pushT||!room||!HOST)return;pushT=setTimeout(()=>{pushT=0;if(room&&HOST&&G)room.send('state',pack())},80)}
-function applyState(d){
- for(const k in d.cc)if(!CARDS[k])CARDS[k]=d.cc[k];for(const k in d.cs)if(CARDS[k])CARDS[k].c=d.cs[k];
+function applyState(d){  const __tcPreviousTurn=G?G.turn:null;  for(const k in d.cc)if(!CARDS[k])CARDS[k]=d.cc[k];for(const k in d.cs)if(CARDS[k])CARDS[k].c=d.cs[k];
  if(!G){G={ps:[],hist:[],snow:{left:0,lvl:0},card:null,target:(SEAT+1)%d.ps.length,keys:{},timer:setInterval(tick,50)};}
  G.ps=d.ps.map((q,i)=>Object.assign({},G.ps[i]||{lastMove:0,umb:3},q,{turns:Number.isFinite(q.turns)?q.turns:0,ap:Number.isFinite(q.ap)?q.ap:0,apMax:Number.isFinite(q.apMax)?q.apMax:S().ap,sleep:Number.isFinite(q.sleep)?q.sleep:0,sansUntil:Number.isFinite(q.sansUntil)?q.sansUntil:0,horseUntil:Number.isFinite(q.horseUntil)?q.horseUntil:0,youtubeAtkBonus:Number.isFinite(q.youtubeAtkBonus)?q.youtubeAtkBonus:0,cheatActive:!!q.cheatActive,cheatRisk:Number.isFinite(q.cheatRisk)?q.cheatRisk:0,human:true,u:{char:q.char||0,img:''}}));
  Object.assign(G,{turn:d.turn,turnSeq:Number.isFinite(d.turnSeq)?d.turnSeq:(G.turnSeq||0),ap:d.ap,apMax:d.apMax,log:d.log,over:d.over,snow:d.snow,inc:Array.isArray(d.inc)?d.inc:[]});
+ if(__tcPreviousTurn!==d.turn&&d.turn===SEAT)showOwnTurnNotice();
+ if(TC_CARD_ACTION_BUSY)releaseCardAction();
  if(G.ps[G.turn]){G.ap=G.ps[G.turn].ap;G.apMax=G.ps[G.turn].apMax;}
  if(G.target===SEAT||!G.ps[G.target])G.target=G.ps.findIndex((p,i)=>i!==SEAT&&p.alive);
  if(screen!=='battle'){screen='battle';render()}else paintBattle()}
-function onAct(seat,a){if(!G||G.over||!HOST)return;const t=G.target;G.target=a.target!=null&&a.target!==seat?a.target:t;
+function onAct(seat,a){if(!G||G.over||!HOST)return;if(a&&a.k){G._tcRemoteCardAt=G._tcRemoteCardAt||{};const now=Date.now(),last=G._tcRemoteCardAt[seat]||0;if(now-last<350)return;G._tcRemoteCardAt[seat]=now;}const t=G.target;G.target=a.target!=null&&a.target!==seat?a.target:t;
  if(a.mv)move(seat,a.mv[0],a.mv[1]);else if(a.k&&CARDS[a.k]&&G.ps[seat].hand.concat(['draw','end']).includes(a.k))playCard(seat,a.k,a.tile);G.target=t;paintBattle()}
 function perform(a){if(ONL&&!HOST){if(a.mv){const n=performance.now();if(n-lastMv<250)return false;lastMv=n}if(!room)return false;room.send('act',{...a,target:G.target});return true}
  if(a.mv)return move(SEAT,a.mv[0],a.mv[1]);return playCard(SEAT,a.k,a.tile)}
